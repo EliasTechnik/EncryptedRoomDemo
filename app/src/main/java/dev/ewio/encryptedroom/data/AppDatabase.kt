@@ -58,6 +58,7 @@ abstract class AppDatabase : RoomDatabase() {
                 .openHelperFactory(factory)
                 .setQueryExecutor(queryExecutor)
                 .setTransactionExecutor(transactionExecutor)
+                //.setJournalMode(JournalMode.TRUNCATE) //this also fixes the issue but disables WAL
                 .addCallback(object : RoomDatabase.Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
