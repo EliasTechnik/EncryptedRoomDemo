@@ -51,7 +51,7 @@ abstract class AppDatabase : RoomDatabase() {
 
             val factory = SupportOpenHelperFactory(passphrase, hook, true)
 
-            val queryExecutor = Executors.newFixedThreadPool(1) //change this to 2 or more and the database breaks!
+            val queryExecutor = Executors.newFixedThreadPool(2) //change this to 1 and the database works everytime
             val transactionExecutor = Executors.newSingleThreadExecutor()
 
             return Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
