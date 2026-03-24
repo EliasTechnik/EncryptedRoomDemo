@@ -36,13 +36,13 @@ abstract class AppDatabase : RoomDatabase() {
             Log.d("AppDatabase", "building encrypted database...")
 
             val hook = object : SQLiteDatabaseHook {
-                override fun preKey(connection: SQLiteConnection) {}
-
+                override fun preKey(connection: SQLiteConnection) {
+                    connection.execute("PRAGMA cipher_page_size = 8192;", null, null)
+                    connection.execute("PRAGMA cipher_use_hmac = OFF;",  null, null)// see: https://www.zetetic.net/sqlcipher/performance/#:~:text=entropy%20key%20values.-,Disable,-Page%20Data%20Validation
+                }
                 override fun postKey(connection: SQLiteConnection) {
                     //Note: Changing this breaks existing databases. This is not fixable by common migrations!
-                    connection.execute("PRAGMA cipher_default_page_size = 8192;", null, null)
-                    connection.execute("PRAGMA cipher_use_hmac = OFF;",  null, null)// see: https://www.zetetic.net/sqlcipher/performance/#:~:text=entropy%20key%20values.-,Disable,-Page%20Data%20Validation
-                    connection.execute("PRAGMA cipher_memory_security = OFF;",  null, null) //turns improved sanitization of in-memory data used by the database off.
+                    //connection.execute("PRAGMA cipher_memory_security = OFF;",  null, null) //turns improved sanitization of in-memory data used by the database off.
                     //This increases the risk of memory readouts but again improves performance. This risk is generally accepted: https://www.zetetic.net/sqlcipher/performance/#:~:text=Turn%20Off%20Memory%20Security
                 }
             }
@@ -56,8 +56,8 @@ abstract class AppDatabase : RoomDatabase() {
 
             return Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
                 .openHelperFactory(factory)
-                .setQueryExecutor(queryExecutor)
-                .setTransactionExecutor(transactionExecutor)
+                //.setQueryExecutor(queryExecutor)
+                //.setTransactionExecutor(transactionExecutor)
                 //.setJournalMode(JournalMode.TRUNCATE) //this also fixes the issue but disables WAL
                 .addCallback(object : RoomDatabase.Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
